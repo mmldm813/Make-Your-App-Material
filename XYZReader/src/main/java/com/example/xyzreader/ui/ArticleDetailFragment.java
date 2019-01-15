@@ -12,12 +12,14 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.graphics.Palette;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -39,6 +41,7 @@ import java.util.GregorianCalendar;
 public class ArticleDetailFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ArticleDetailFragment";
+    private static final int ARTICLE_BODY_SNIPPET_LENGTH = 400;
 
     public static final String ARG_ITEM_ID = "item_id";
 
@@ -48,12 +51,15 @@ public class ArticleDetailFragment extends Fragment implements
     private int mMutedColor = 0xFF333333;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private ImageView mPhotoView;
+    private Button mActionLoadMore;
+    private TextView mBodyView;
+    private String mArticleBody;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
-    private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
+    private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -92,13 +98,22 @@ public class ArticleDetailFragment extends Fragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
 
         collapsingToolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar_layout);
         collapsingToolbarLayout.setTitle("XYZReader");
 
+        mBodyView = (TextView) mRootView.findViewById(R.id.article_body);
+
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
+        mActionLoadMore = (Button) mRootView.findViewById(R.id.action_load_more);
+        mActionLoadMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadEntireArticleBody();
+            }
+        });
 
         mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +127,12 @@ public class ArticleDetailFragment extends Fragment implements
 
         bindViews();
         return mRootView;
+    }
+
+    private void loadEntireArticleBody() {
+        mActionLoadMore.setOnClickListener(null);
+        mActionLoadMore.setVisibility(View.GONE);
+        mBodyView.setText(Html.fromHtml(mArticleBody));
     }
 
     private Date parsePublishedDate() {
@@ -133,10 +154,9 @@ public class ArticleDetailFragment extends Fragment implements
         TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
         TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
-        TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
 
 
-        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
+        mBodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
@@ -158,11 +178,13 @@ public class ArticleDetailFragment extends Fragment implements
                 // If date is before 1902, just show the string
                 bylineView.setText(Html.fromHtml(
                         outputFormat.format(publishedDate) + " by <font color='#ffffff'>"
-                        + mCursor.getString(ArticleLoader.Query.AUTHOR)
+                                + mCursor.getString(ArticleLoader.Query.AUTHOR)
                                 + "</font>"));
 
             }
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
+            mArticleBody = mCursor.getString(ArticleLoader.Query.BODY);
+            loadSnippetArticleBody();
+
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
                         @Override
@@ -185,9 +207,24 @@ public class ArticleDetailFragment extends Fragment implements
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
-            bylineView.setText("N/A" );
-            bodyView.setText("N/A");
+            bylineView.setText("N/A");
+            mBodyView.setText("N/A");
         }
+    }
+
+    private void loadSnippetArticleBody() {
+        boolean needsToShowLoadMore = mArticleBody.length() > ARTICLE_BODY_SNIPPET_LENGTH;
+        if (needsToShowLoadMore) {
+            Spanned html = Html.fromHtml(mArticleBody.substring(0, ARTICLE_BODY_SNIPPET_LENGTH));
+            mActionLoadMore.setVisibility(View.VISIBLE);
+            mBodyView.setText(html);
+            return;
+        }
+
+        Spanned html = Html.fromHtml(mArticleBody);
+        mActionLoadMore.setOnClickListener(null);
+        mActionLoadMore.setVisibility(View.GONE);
+        mBodyView.setText(html);
     }
 
     @Override
