@@ -53,7 +53,7 @@ public class ArticleDetailFragment2 extends Fragment implements
     private int mMutedColor = 0xFF333333;
 //    private ObservableScrollView mScrollView;
     private CollapsingToolbarLayout collapsingToolbarLayout;
-    private ProgressBar progressBar;
+//    private ProgressBar progressBar;
 //    private Toolbar toolbar;
 //    private AppBarLayout appBarLayout;
 //    private CoordinatorLayout coordinatorLayout;
@@ -132,7 +132,7 @@ public class ArticleDetailFragment2 extends Fragment implements
         collapsingToolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar_layout);
         collapsingToolbarLayout.setTitle("XYZReader");
 
-        progressBar = (ProgressBar) mRootView.findViewById(R.id.progress_bar);
+//        progressBar = (ProgressBar) mRootView.findViewById(R.id.progress_bar);
 //        toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar_detail);
 //        appBarLayout = (AppBarLayout) mRootView.findViewById(R.id.main_appbar);
 
@@ -281,10 +281,9 @@ public class ArticleDetailFragment2 extends Fragment implements
 //            });
 //            appBarLayout.setVisibility(View.VISIBLE);
 
-            progressBar.setVisibility(View.GONE);
+//            progressBar.setVisibility(View.GONE);
         } else {
 //            appBarLayout.setVisibility(View.GONE);
-            progressBar.setVisibility(View.VISIBLE);
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
             bylineView.setText("N/A" );
