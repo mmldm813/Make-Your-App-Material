@@ -15,6 +15,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.widget.ProgressBar;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
@@ -37,6 +38,7 @@ public class ArticleDetailActivity extends ActionBarActivity
     private MyPagerAdapter mPagerAdapter;
     private View mUpButtonContainer;
     private View mUpButton;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,7 @@ public class ArticleDetailActivity extends ActionBarActivity
         });
 
         mUpButtonContainer = findViewById(R.id.up_container);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         mUpButton = findViewById(R.id.action_up);
         mUpButton.setOnClickListener(new View.OnClickListener() {
@@ -176,5 +179,9 @@ public class ArticleDetailActivity extends ActionBarActivity
         public int getCount() {
             return (mCursor != null) ? mCursor.getCount() : 0;
         }
+    }
+
+    public void hideProgressBar(){
+        mProgressBar.setVisibility(View.GONE);
     }
 }

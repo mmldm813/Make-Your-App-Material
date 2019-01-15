@@ -282,6 +282,7 @@ public class ArticleDetailFragment2 extends Fragment implements
 //            appBarLayout.setVisibility(View.VISIBLE);
 
 //            progressBar.setVisibility(View.GONE);
+            ((ArticleDetailActivity) getActivity()).hideProgressBar();
         } else {
 //            appBarLayout.setVisibility(View.GONE);
             mRootView.setVisibility(View.GONE);
